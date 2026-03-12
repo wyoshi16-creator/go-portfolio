@@ -3,7 +3,10 @@
     "allow": [
       "Bash(pnpm build:*)",
       "Bash(npx tsc:*)",
-      "WebFetch(domain:pudding.cool)"
+      "WebFetch(domain:pudding.cool)",
+      "Bash(pnpm install)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git add components/ lib/design-tokens.ts lib/phases.ts lib/hooks/ lib/utils/ .claude/launch.json .claude/settings.local.json)"
     ]
   }
 }
