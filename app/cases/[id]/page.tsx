@@ -722,19 +722,59 @@ function FeaturedScrollytelling({ steps, phaseColor, caseData, overviewRef }: {
 
             <div style={{ flex: 1, minHeight: 0, display: "flex", gap: "clamp(24px,4vw,56px)", alignItems: "flex-start", overflow: "hidden" }}>
               <div style={{ flex: "1 1 auto", minWidth: 0, paddingTop: "4px", display: "flex", flexDirection: "column", gap: "clamp(10px,1.5vh,16px)" }}>
-                <TextLines lines={displayStep.lines} visible={textIn} />
-                {displayStep.eye && <ArchitectsEye text={displayStep.eye} visible={eyeVisible} phaseColor={phaseColor} />}
+                {/* 2E: Main copy (xl lines only) */}
+                <TextLines lines={displayStep.lines.filter(l => l.size === "xl")} visible={textIn} />
+                {/* 2F: Body text placeholder */}
+                <div style={{ marginTop: "16px", display: "flex", flexDirection: "column", gap: "12px", opacity: textIn ? 1 : 0, transition: "opacity 0.5s ease 0.15s" }}>
+                  <p style={{ fontSize: "14px", color: C.inkDim, lineHeight: 1.75, fontFamily: C.serif }}>
+                    ——本文テキストがここに入ります——
+                  </p>
+                  <p style={{ fontSize: "14px", color: C.inkDim, lineHeight: 1.75, fontFamily: C.serif }}>
+                    ——本文テキストがここに入ります——
+                  </p>
+                </div>
+                {/* 2G: ARCHITECT'S EYE (below 2F) */}
+                {displayStep.eye && (
+                  <div style={{ marginTop: "24px" }}>
+                    <ArchitectsEye text={displayStep.eye} visible={eyeVisible} phaseColor={phaseColor} />
+                  </div>
+                )}
               </div>
               <div style={{ flexShrink: 0, display: "flex", flexDirection: "column", gap: "12px", alignItems: "flex-end" }}>
-                <PlaceholderImg label={displayStep.en} visible={imgVisible} phaseColor={phaseColor} />
-                <div style={{ width: "130px", height: "130px", opacity: diagVisible ? 1 : 0, transform: diagVisible ? "translateY(0)" : "translateY(16px)", transition: "opacity 0.55s ease, transform 0.6s ease" }}>
-                  <Diagram type={displayStep.diagramType} visible={diagVisible} phaseColor={phaseColor} />
+                {/* 2H: sketch.png image */}
+                <div style={{
+                  width: "260px", height: "260px", flexShrink: 0,
+                  opacity: imgVisible ? 1 : 0,
+                  transform: imgVisible ? "translateY(0) scale(1)" : "translateY(24px) scale(0.97)",
+                  transition: "opacity 0.6s cubic-bezier(0.16,1,0.3,1) 0.05s, transform 0.65s cubic-bezier(0.16,1,0.3,1) 0.05s",
+                  position: "relative", overflow: "hidden",
+                }}>
+                  <img
+                    src={`/cases/case${caseData.id}/sketch.png`}
+                    alt="端末スケッチ"
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+                  />
+                </div>
+                {/* 2I: Diagram placeholder */}
+                <div style={{
+                  width: "260px", height: "130px",
+                  border: `1px solid ${C.inkFaint}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  opacity: diagVisible ? 1 : 0,
+                  transform: diagVisible ? "translateY(0)" : "translateY(16px)",
+                  transition: "opacity 0.55s ease, transform 0.6s ease",
+                }}>
+                  <p style={{ fontSize: "10px", letterSpacing: "0.3em", color: C.inkFaint, fontFamily: C.mono }}>
+                    DIAGRAM PLACEHOLDER
+                  </p>
                 </div>
               </div>
             </div>
           </div>
 
-          <div style={{ padding: `8px clamp(48px,10vw,160px)`, borderTop: `1px solid ${C.inkFaint}`, display: "flex", alignItems: "center", justifyContent: "space-between", background: C.bg, flexShrink: 0 }}>
+          {/* 2J: Footer bar (expanded height) */}
+          <div style={{ padding: `20px clamp(48px,10vw,160px)`, borderTop: `1px solid ${C.inkFaint}`, display: "flex", alignItems: "center", justifyContent: "space-between", background: C.bg, flexShrink: 0 }}>
             <div style={{ fontSize: "12px", color: C.inkMid, fontFamily: C.serif, fontStyle: "italic" }}>{displayStep.label}</div>
             <div style={{ fontSize: "9px", letterSpacing: "0.2em", color: C.inkFaint, fontFamily: C.mono, animation: "bounce 1.7s ease infinite" }}>↓ scroll</div>
           </div>
@@ -802,38 +842,39 @@ export default function CasePage({ params }: { params: { id: string } }) {
       {/* HERO */}
       <section style={{
         minHeight: "100vh",
-        display: "flex", flexDirection: "column", justifyContent: "center",
+        display: "flex", flexDirection: "column", justifyContent: "flex-end",
         padding: `calc(${NAV_H}px + 10vh) clamp(48px,10vw,160px) 10vh`,
-        background: C.bg,
-        borderBottom: `1px solid ${C.inkFaint}`,
         position: "relative", overflow: "hidden",
       }}>
-        <svg style={{ position: "absolute", inset: 0, width: "100%", height: "100%", opacity: 0.035, pointerEvents: "none" }}>
-          <defs><pattern id="bg-grid" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
-            <path d="M 48 0 L 0 0 0 48" fill="none" stroke={C.ink} strokeWidth="0.5" />
-          </pattern></defs>
-          <rect width="100%" height="100%" fill="url(#bg-grid)" />
-        </svg>
-        <div style={{ maxWidth: "700px", position: "relative", animation: "fadeUp 0.9s ease both" }}>
+        {/* Background: sketch image + dark overlay */}
+        <img
+          src={`/cases/case${caseData.id}/sketch.png`}
+          alt=""
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center" }}
+          onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }}
+        />
+        <div style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.60)" }} />
+
+        <div style={{ maxWidth: "700px", position: "relative", zIndex: 1, animation: "fadeUp 0.9s ease both" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "24px" }}>
             <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: phaseColor, animation: "pulse 2.2s ease infinite" }} />
-            <span style={{ fontSize: "10px", letterSpacing: "0.5em", color: phaseColor, fontFamily: C.mono }}>CASE {String(caseData.id).padStart(2, "0")}</span>
-            <span style={{ fontSize: "10px", letterSpacing: "0.2em", color: C.inkDim, fontFamily: C.mono }}>— {caseData.year}</span>
+            <span style={{ fontSize: "10px", letterSpacing: "0.5em", color: "rgba(255,255,255,0.5)", fontFamily: C.mono }}>CASE {String(caseData.id).padStart(2, "0")}</span>
+            <span style={{ fontSize: "10px", letterSpacing: "0.2em", color: "rgba(255,255,255,0.35)", fontFamily: C.mono }}>— {caseData.year}</span>
           </div>
-          <h1 style={{ fontSize: "clamp(24px,4vw,52px)", color: C.ink, fontFamily: C.serif, lineHeight: 1.3, letterSpacing: "0.02em", marginBottom: "20px" }}>
+          <h1 style={{ fontSize: "clamp(24px,4vw,52px)", color: "#ffffff", fontFamily: C.serif, lineHeight: 1.3, letterSpacing: "0.02em", marginBottom: "20px" }}>
             {caseData.title}
           </h1>
-          <p style={{ fontSize: "clamp(13px,1.5vw,16px)", color: C.inkMid, fontFamily: C.serif, lineHeight: 1.9, letterSpacing: "0.04em", maxWidth: "500px", marginBottom: "32px" }}>
+          <p style={{ fontSize: "clamp(13px,1.5vw,16px)", color: "rgba(255,255,255,0.6)", fontFamily: C.serif, lineHeight: 1.9, letterSpacing: "0.04em", maxWidth: "500px", marginBottom: "32px" }}>
             {caseData.steps[0].text.split("\n")[0]}
           </p>
           <div style={{ display: "flex", gap: "6px", flexWrap: "wrap" }}>
             {caseData.tags.map(t => (
-              <span key={t} style={{ fontSize: "10px", color: C.inkDim, padding: "3px 10px", border: `1px solid ${C.inkFaint}`, fontFamily: C.mono, letterSpacing: "0.15em" }}>{t}</span>
+              <span key={t} style={{ fontSize: "10px", color: "rgba(255,255,255,0.35)", padding: "3px 10px", border: "1px solid rgba(255,255,255,0.15)", fontFamily: C.mono, letterSpacing: "0.15em" }}>{t}</span>
             ))}
           </div>
         </div>
-        <div style={{ position: "absolute", bottom: "28px", left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", animation: "fadeUp 1s ease 0.6s both" }}>
-          <div style={{ fontSize: "9px", letterSpacing: "0.45em", color: C.inkFaint, fontFamily: C.mono }}>SCROLL</div>
+        <div style={{ position: "absolute", bottom: "28px", left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px", zIndex: 1, animation: "fadeUp 1s ease 0.6s both" }}>
+          <div style={{ fontSize: "9px", letterSpacing: "0.45em", color: "rgba(255,255,255,0.25)", fontFamily: C.mono }}>SCROLL</div>
           <div style={{ width: "1px", height: "36px", background: `linear-gradient(180deg, ${phaseColor}70, transparent)`, animation: "bounce 1.9s ease infinite" }} />
         </div>
       </section>
